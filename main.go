@@ -13,7 +13,7 @@ func main() {
         port := 8484
         ep := "hello"
 
-        fmt.Fprintf("Running HTTP server, using endpoint: %s, port: %d", ep, port)
+        fmt.Fprintf(os.Stdout, "Running HTTP server, using endpoint: %s, port: %d", ep, port)
 
         http.HandleFunc("/" + ep, handler)
         http.ListenAndServe(":" + strconv.Itoa(port), nil)
