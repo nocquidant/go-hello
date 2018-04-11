@@ -1,11 +1,13 @@
 language: go
 go:
-- 1.10
+- "1.10.x"
 env:
   matrix:
   - GOARCH=amd64
-  global:
-    secure: W9d/exOuTcG2MSLeG+zrb0scAHWMIErlc31wudr+JT/bMM7/0TYvDMsdRBu2SLR2gE1SJUPlEdjGWIK6G5t3aXlaIYx9UBrIQcOUVYGSTluhUshHpt9RUcWto+TqNdNC0XByVwJ+kF3V+eNASX+bMO9w0nmnN4m0w1DgYI2CsFXcKd0Xfkgm6ORNDlRuSSidL74yydKBZdBywIC81PrbebjHHC0LITkKjBEiHar+B2ruql4hB8bjICaKVeDHA6ri8LKJHap80efRvZcO6bpX2YtlE34+y7m1UiSnLYsfN4edU/iFKT7Id3AL6H43/vwapNowTwfP+aRV++HV3xGaorH4jrm3oyCJUGHqhIzoxXufg9/SHb8F84BhW9MnnnB6gZ5DucR3cq/KSUdNq3F+c7hxmAfxygwz24ObdfjVb75Ram2oT51hPLOAcDzjzkQK0XzDhbfI/omI9QbKYJC7qjmZn6YbwF4Ek07wOJJDBWaTV/BYZO9ry2RF9rDkjcZoRHc9dWvSCkDPlgz6VUMO6xmk0hypZ7l4B9tWgqIj3OBYdDfoZKl+VOX2eFibm67vLzHbjYmiQVK46CaaSNu7+leQ2at3JMYThsnf2fs5LDofDtQ5P+ueLaXo6x6/Jb5nkE9wt3zF35UL4kuo/oTVX9bTgAFt+CrdhioHDiipIpA=
+    global:
+    - secure: aiuldPslp8qWKceXdz64Ev9iD16BUxVNpSa9FICL+veUHZTi3tThphKiU2svXcYZcR+uxbmuUAqY++fgGV9XVutK8EpU7vLOBEfot6FapULNAd5ImsBOWHyEAmscFZfxNJILG72QUPvtr8QmCkz8GjW1jKLTLGhtxoDcN6cj2Cpo35KSubc0SYDIJdU+5BmsdtPWR232F4E+CI6YvBvLL+WYXPSKWN6zvkNALAn4JcMeYg3hdH7m4DyJJjSWEABT2YmhsD2QQjLQhJNgZtba3gRPQxeezhSNhRD8Enr7GMGio1WvA+fuELf5Kn/ZyFKt1CDdgNG+gYaRII0xJEnE+VUY7xt24jYmnsR4R6y82dBhyeJLACALpHZjSsBHgLwXTR9K8dWYNuULNGtDAResWvIvZi1FyQ9d/ulZWdbEqpBGLGHEX2ZA7GSiSl+nfD+U/Vc/PJgXBF+cu2lrxSIhBTQo0lKwcN9DHU1s4dqryrmf7JYsl9MTy82e/bmOX0Fhsz75GmrieYzaXwmKdidN0y5OyPXnEFKm83RIC6NfbwCD7kH72TavNdHjnMUJ1rBXVeVL8zqUhPVbzCwgiHaHDFl5fny+l7gt11dpN0S2O4ucaAEQ7tK44Rp16mteV9RDXX/Ehs64DyPQAFe4DvrAfdFH0GYjjmc8uCeBJOFfe0M=
+    - secure: AAu9xDksLK3IRCaQ/+vTAY1f/xz/IRW+RsMvdNy27ztmLPoUlxAGTS5BlS/2UEYVZKdTb3cC31PNOPSrAzcJ6C4CRa1Gn9eWIEVIFCoLemIsoLGYRLLRNxIl8kpmTja3EMcXfBQ235PxH1mTcxvroDeh9OZg3AcIclFL7tRWKqiHyBQh6FclV9XwkhaYIVcfPIAhSoexPd/tSsFjlBWmA3/tjDaKENGVSCf5RpzrB/riw5vFDCiYIqcQYxEo3tlYHFQfOOTMbZEZRmYxiqv+Q5fb66QgkDLiRDm9hEgjeWT7RytoIzG+n9bx7GY/pvnIE4T/AH6XxrUUIHq75VvmsnAleMItJQ855Xk3fI9KQFBjfQvbCpec+ZEPj5Sliitveitd7eeknhT5HFu1ZEsbeEFVmEHHpUC7CBeBq824G0zm0+K21Zjv8Ugc4UkfNJooctAvADNdkR1NHGZ2hCaA9futjcIEkfIkJx1+Yi1vPIyHyHC2bYmudkilitzun9zA0L38Ehz3SnaPqYAfEYmHj3EsxVe+Df0Vi6ERnsFNVTeVJXc1nsLKJ9xTWVvdrmZk/I67Z/tOQayEBLzK2Ivp0tldAsgOUKsPe0z3SY2ErjthbWb+WuEbwlCk9HGoTOgfUxgR49B+yAA+uCsLcNtwjY7BRNu+n+HwfCqs8amFxRA=
+    - COMMIT=${TRAVIS_COMMIT::8}
 script:
 - go get github.com/nocquidant/go-hello
 - go build
@@ -13,7 +15,7 @@ notifications:
   email: false
 deploy:
   provider: releases
-  api_key: ${GITHUB_AUTH_TOKEN}
+  api_key: "${GITHUB_AUTH_TOKEN}"
   file: go-hello
   skip_cleanup: true
   on:
