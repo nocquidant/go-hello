@@ -1,5 +1,6 @@
 package main
 import (
+        "strconv"
         "fmt"
         "net/http"
         "os"
@@ -15,5 +16,5 @@ func main() {
         fmt.Fprintf(w, "Running HTTP server, using endpoint: %s, port: %d", ep, port)
 
         http.HandleFunc("/" + ep, handler)
-        http.ListenAndServe(":" + port, nil)
+        http.ListenAndServe(":" + strconv.Itoa(port), nil)
 }
