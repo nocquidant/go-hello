@@ -1,0 +1,20 @@
+language: go
+go:
+- 1.5
+env:
+  matrix:
+  - GOARCH=amd64
+  global:
+    secure: W9d/exOuTcG2MSLeG+zrb0scAHWMIErlc31wudr+JT/bMM7/0TYvDMsdRBu2SLR2gE1SJUPlEdjGWIK6G5t3aXlaIYx9UBrIQcOUVYGSTluhUshHpt9RUcWto+TqNdNC0XByVwJ+kF3V+eNASX+bMO9w0nmnN4m0w1DgYI2CsFXcKd0Xfkgm6ORNDlRuSSidL74yydKBZdBywIC81PrbebjHHC0LITkKjBEiHar+B2ruql4hB8bjICaKVeDHA6ri8LKJHap80efRvZcO6bpX2YtlE34+y7m1UiSnLYsfN4edU/iFKT7Id3AL6H43/vwapNowTwfP+aRV++HV3xGaorH4jrm3oyCJUGHqhIzoxXufg9/SHb8F84BhW9MnnnB6gZ5DucR3cq/KSUdNq3F+c7hxmAfxygwz24ObdfjVb75Ram2oT51hPLOAcDzjzkQK0XzDhbfI/omI9QbKYJC7qjmZn6YbwF4Ek07wOJJDBWaTV/BYZO9ry2RF9rDkjcZoRHc9dWvSCkDPlgz6VUMO6xmk0hypZ7l4B9tWgqIj3OBYdDfoZKl+VOX2eFibm67vLzHbjYmiQVK46CaaSNu7+leQ2at3JMYThsnf2fs5LDofDtQ5P+ueLaXo6x6/Jb5nkE9wt3zF35UL4kuo/oTVX9bTgAFt+CrdhioHDiipIpA=
+script:
+- go get github.com/willejs/go-hello-world
+- go build
+notifications:
+  email: false
+deploy:
+  provider: releases
+  api_key: ${GITHUB_AUTH_TOKEN}
+  file: go-hello-world
+  skip_cleanup: true
+  on:
+    tags: true
