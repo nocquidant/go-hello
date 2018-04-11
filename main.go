@@ -9,6 +9,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
         fmt.Fprintf(w, "Hi there, I'm served from %s!", h)
 }
 func main() {
-        http.HandleFunc("/hello", handler)
-        http.ListenAndServe(":8484", nil)
+        port := 8484
+        ep := "hello"
+
+        fmt.Fprintf(w, "Running HTTP server, using endpoint: %s, port: %d", ep, port)
+
+        http.HandleFunc("/" + ep, handler)
+        http.ListenAndServe(":" + port, nil)
 }
