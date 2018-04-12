@@ -11,5 +11,5 @@ RUN go install github.com/nocquidant/go-hello
 # Run the service
 ENTRYPOINT /go/bin/go-hello
 
-# Document that the service listens on port 8080.
+# Document the port the service listens
 EXPOSE 8484

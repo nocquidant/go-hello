@@ -15,7 +15,8 @@ func handlerHello(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerCallBack(w http.ResponseWriter, r *http.Request) {
-	url := "http://go-hello-back:8485/hello"
+	url := "http://go-hello-back:8485/touch"
+	//url := "http://localhost:8485/touch"
 
 	// Build the request
 	req, err := http.NewRequest("GET", url, nil)
@@ -44,20 +45,20 @@ func handlerCallBack(w http.ResponseWriter, r *http.Request) {
 			log.Fatal("Do: ", err)
 			return
 		}
-		fmt.Fprintf(w, "Got response from the back. %s\n", string(bodyBytes))
+		fmt.Fprintf(w, "Got response from the back => %s\n", string(bodyBytes))
+	} else {
+		fmt.Fprintf(w, "Error while calling the back: %d", resp.StatusCode)
 	}
-
-	fmt.Fprintf(w, "Error while calling the back: %d", resp.StatusCode)
 }
 
 func main() {
 	port := 8484
 
 	fmt.Fprintf(os.Stdout, "HTTP server is running using port: %d\n", port)
-	fmt.Fprintf(os.Stdout, "Available endpoints are: '/hello' and '/call'")
+	fmt.Fprintf(os.Stdout, "Available endpoints are: '/hello' and '/back'")
 
 	http.HandleFunc("/hello", handlerHello)
-	http.HandleFunc("/call", handlerCallBack)
+	http.HandleFunc("/back", handlerCallBack)
 
 	http.ListenAndServe(":"+strconv.Itoa(port), nil)
 }
