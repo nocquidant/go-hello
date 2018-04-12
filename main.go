@@ -15,7 +15,7 @@ func handlerHello(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerCallBack(w http.ResponseWriter, r *http.Request) {
-	url := "http://go-hello-back:8485/touch"
+	url := "http://hello-back-svc:8485/touch"
 	//url := "http://localhost:8485/touch"
 
 	// Build the request
