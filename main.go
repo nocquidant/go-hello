@@ -81,7 +81,7 @@ func handlerCallBack(w http.ResponseWriter, r *http.Request) {
 func main() {
 	port := confServerPort()
 
-	log.Println("HTTP server is running using port: %d\n", port)
+	log.Printf("HTTP server is running using port: %d\n", port)
 	log.Println("Available endpoints are: '/hello' and '/back'")
 
 	http.HandleFunc("/hello", handlerHello)
