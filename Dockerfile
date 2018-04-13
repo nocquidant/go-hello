@@ -1,4 +1,6 @@
 # Multi stage build
+#  - We don't need go installed once our app is compiled
+#  - Leaving the build image
 
 FROM golang:1.10 AS build
 ADD . /src
