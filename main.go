@@ -9,32 +9,46 @@ import (
 	"strconv"
 )
 
-func handlerHello(w http.ResponseWriter, r *http.Request) {
-	h, _ := os.Hostname()
-	fmt.Fprintf(w, "Hi there, I'm served from %s!\n", h)
+func confServerPort() int {
+	port := os.Getenv("PORT")
+	if port == "" {
+		return 8484
+	}
+	num, err := strconv.Atoi(port)
+	if err != nil {
+		log.Println("ERROR during conversion: ", err)
+		return 8484
+	}
+	return num
 }
 
-func handlerInfo(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "URL to back: %s!\n", backURL)
-}
-
-func backURL() string {
-	name := os.Getenv("HOSTNAME")
+func confBackURL() string {
+	name := os.Getenv("BACK")
 	if name == "" {
 		name = "hello-back-svc"
 	}
-	port := os.Getenv("PORT")
+	port := os.Getenv("BACK_PORT")
 	if port == "" {
 		port = "8485"
 	}
 	return "http://" + name + ":" + port + "/touch"
 }
 
+func handlerHello(w http.ResponseWriter, r *http.Request) {
+	h, _ := os.Hostname()
+	fmt.Fprintf(w, "Hi there, I'm served from %s!\n", h)
+}
+
+func handlerInfo(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "- Used port is: %d!\n", confServerPort())
+	fmt.Fprintf(w, "- Used back URL is: %s!\n", confBackURL)
+}
+
 func handlerCallBack(w http.ResponseWriter, r *http.Request) {
 	// Build the request
-	req, err := http.NewRequest("GET", backURL(), nil)
+	req, err := http.NewRequest("GET", confBackURL(), nil)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
+		log.Println("ERROR when building request: ", err)
 		return
 	}
 
@@ -44,7 +58,7 @@ func handlerCallBack(w http.ResponseWriter, r *http.Request) {
 	// Send the request via a client
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal("Do: ", err)
+		log.Println("ERROR when requesting backend: ", err)
 		return
 	}
 
@@ -55,7 +69,7 @@ func handlerCallBack(w http.ResponseWriter, r *http.Request) {
 	if resp.StatusCode == http.StatusOK {
 		bodyBytes, err2 := ioutil.ReadAll(resp.Body)
 		if err2 != nil {
-			log.Fatal("Do: ", err)
+			log.Println("ERROR when getting body: ", err)
 			return
 		}
 		fmt.Fprintf(w, "Got response from the back => %s\n", string(bodyBytes))
@@ -65,10 +79,10 @@ func handlerCallBack(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	port := 8484
+	port := confServerPort()
 
-	fmt.Fprintf(os.Stdout, "HTTP server is running using port: %d\n", port)
-	fmt.Fprintf(os.Stdout, "Available endpoints are: '/hello' and '/back'")
+	log.Println("HTTP server is running using port: %d\n", port)
+	log.Println("Available endpoints are: '/hello' and '/back'")
 
 	http.HandleFunc("/hello", handlerHello)
 	http.HandleFunc("/info", handlerInfo)
