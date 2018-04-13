@@ -41,7 +41,7 @@ func handlerHello(w http.ResponseWriter, r *http.Request) {
 
 func handlerInfo(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "- Used port is: %d!\n", confServerPort())
-	fmt.Fprintf(w, "- Used back URL is: %s!\n", confBackURL)
+	fmt.Fprintf(w, "- Used back URL is: %s!\n", confBackURL())
 }
 
 func handlerCallBack(w http.ResponseWriter, r *http.Request) {

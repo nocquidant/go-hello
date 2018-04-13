@@ -15,7 +15,6 @@ env:
     - COMMIT=${TRAVIS_COMMIT::8}
 
 after_success:
-  - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build main.go
   - docker login -u $DOCKER_USER -p $DOCKER_PASS
   - export REPO=nocquidant/go-hello
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi`

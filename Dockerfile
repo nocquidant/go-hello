@@ -1,15 +1,22 @@
-# Start from a Debian image with the latest version of Go installed
-# and a workspace (GOPATH) configured at /go.
-FROM golang
+# Multi stage build
 
-# create the user
-RUN useradd -r -s /bin/false helloworld
-# Go get and build
-RUN go get github.com/nocquidant/go-hello
-RUN go install github.com/nocquidant/go-hello
+FROM golang:1.10 AS build
+ADD . /src
+WORKDIR /src
+RUN go get -d -v -t 
+RUN go test --cover -v ./... --run UnitTest 
+RUN go build -v -o go-hello 
 
-# Run the service
-ENTRYPOINT /go/bin/go-hello
 
-# Document the port the service listens
-EXPOSE 8484
+FROM alpine:3.4 
+
+RUN mkdir /lib64 && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2 
+
+EXPOSE 8484  
+ENV BACK hello-back-svc 
+CMD ["go-hello"] 
+HEALTHCHECK --interval=10s CMD wget -qO- localhost:8484/hello 
+
+COPY --from=build /src/go-hello /usr/local/bin/go-hello
+
+RUN chmod +x /usr/local/bin/go-hello
