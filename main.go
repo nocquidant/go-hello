@@ -36,7 +36,7 @@ func confBackURL() string {
 
 func handlerHello(w http.ResponseWriter, r *http.Request) {
 	h, _ := os.Hostname()
-	fmt.Fprintf(w, "Hi there, I'm served from %s!\n", h)
+	fmt.Fprintf(w, "YAY there, I'm served from %s!\n", h)
 }
 
 func handlerInfo(w http.ResponseWriter, r *http.Request) {
