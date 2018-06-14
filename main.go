@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 func confServerPort() int {
@@ -16,7 +17,7 @@ func confServerPort() int {
 	}
 	num, err := strconv.Atoi(port)
 	if err != nil {
-		log.Println("ERROR during conversion: ", err)
+		log.Println("Error during conversion: ", err)
 		return 8484
 	}
 	return num
@@ -48,19 +49,22 @@ func handlerCallBack(w http.ResponseWriter, r *http.Request) {
 	// Build the request
 	req, err := http.NewRequest("GET", confBackURL(), nil)
 	if err != nil {
-		http.Error(w, "Error when building request", http.StatusBadRequest)
-		log.Println("ERROR when building request: ", err)
+		http.Error(w, "Error while building request", http.StatusBadRequest)
+		log.Println("Error while building request: ", err)
 		return
 	}
 
 	// A Client is an HTTP client
-	client := &http.Client{}
+	timeout := time.Duration(5 * time.Second)
+	client := &http.Client{
+		Timeout: timeout,
+	}
 
 	// Send the request via a client
 	resp, err := client.Do(req)
 	if err != nil {
-		http.Error(w, "Error when requesting backend", http.StatusServiceUnavailable)
-		log.Println("ERROR when requesting backend: ", err)
+		http.Error(w, "Error while requesting backend", http.StatusServiceUnavailable)
+		log.Println("Error while requesting backend: ", err)
 		return
 	}
 
@@ -71,8 +75,8 @@ func handlerCallBack(w http.ResponseWriter, r *http.Request) {
 	if resp.StatusCode == http.StatusOK {
 		bodyBytes, err2 := ioutil.ReadAll(resp.Body)
 		if err2 != nil {
-			http.Error(w, "Error when getting body", http.StatusInternalServerError)
-			log.Println("ERROR when getting body: ", err)
+			http.Error(w, "Error while getting body", http.StatusInternalServerError)
+			log.Println("Error while getting body: ", err)
 			return
 		}
 		fmt.Fprintf(w, "Got response from the back => %s\n", string(bodyBytes))
