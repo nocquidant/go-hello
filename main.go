@@ -37,7 +37,7 @@ func confBackURL() string {
 
 func handlerHello(w http.ResponseWriter, r *http.Request) {
 	h, _ := os.Hostname()
-	fmt.Fprintf(w, "<YAY> Hi there, I'm served from %s!\n", h)
+	fmt.Fprintf(w, "Hi there, I'm served from %s!\n", h)
 }
 
 func handlerInfo(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +79,7 @@ func handlerCallBack(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error while getting body: ", err)
 			return
 		}
-		fmt.Fprintf(w, "<YAY> Got response from the back => %s\n", string(bodyBytes))
+		fmt.Fprintf(w, "Got response from the back => %s\n", string(bodyBytes))
 	} else {
 		fmt.Fprintf(w, "Error while calling the back: %d", resp.StatusCode)
 	}
