@@ -48,6 +48,7 @@ func handlerCallBack(w http.ResponseWriter, r *http.Request) {
 	// Build the request
 	req, err := http.NewRequest("GET", confBackURL(), nil)
 	if err != nil {
+		http.Error(w, "Error when building request", http.StatusBadRequest)
 		log.Println("ERROR when building request: ", err)
 		return
 	}
@@ -58,6 +59,7 @@ func handlerCallBack(w http.ResponseWriter, r *http.Request) {
 	// Send the request via a client
 	resp, err := client.Do(req)
 	if err != nil {
+		http.Error(w, "Error when requesting backend", http.StatusServiceUnavailable)
 		log.Println("ERROR when requesting backend: ", err)
 		return
 	}
@@ -69,6 +71,7 @@ func handlerCallBack(w http.ResponseWriter, r *http.Request) {
 	if resp.StatusCode == http.StatusOK {
 		bodyBytes, err2 := ioutil.ReadAll(resp.Body)
 		if err2 != nil {
+			http.Error(w, "Error when getting body", http.StatusInternalServerError)
 			log.Println("ERROR when getting body: ", err)
 			return
 		}
