@@ -1,6 +1,6 @@
 # go-hello
 
-A tiny hello world go http application that is shipped as a docker container.
+A tiny hello world HTTP application written in Go that is shipped as a docker container.
 
 ## API 
 
