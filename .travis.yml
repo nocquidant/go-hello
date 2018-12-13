@@ -1,12 +1,6 @@
 sudo: required
-
 services:
   - docker
-
-language: go
-
-go:
-  - '1.11'
 
 env:
   global:
@@ -14,7 +8,7 @@ env:
     - secure: "AAu9xDksLK3IRCaQ/+vTAY1f/xz/IRW+RsMvdNy27ztmLPoUlxAGTS5BlS/2UEYVZKdTb3cC31PNOPSrAzcJ6C4CRa1Gn9eWIEVIFCoLemIsoLGYRLLRNxIl8kpmTja3EMcXfBQ235PxH1mTcxvroDeh9OZg3AcIclFL7tRWKqiHyBQh6FclV9XwkhaYIVcfPIAhSoexPd/tSsFjlBWmA3/tjDaKENGVSCf5RpzrB/riw5vFDCiYIqcQYxEo3tlYHFQfOOTMbZEZRmYxiqv+Q5fb66QgkDLiRDm9hEgjeWT7RytoIzG+n9bx7GY/pvnIE4T/AH6XxrUUIHq75VvmsnAleMItJQ855Xk3fI9KQFBjfQvbCpec+ZEPj5Sliitveitd7eeknhT5HFu1ZEsbeEFVmEHHpUC7CBeBq824G0zm0+K21Zjv8Ugc4UkfNJooctAvADNdkR1NHGZ2hCaA9futjcIEkfIkJx1+Yi1vPIyHyHC2bYmudkilitzun9zA0L38Ehz3SnaPqYAfEYmHj3EsxVe+Df0Vi6ERnsFNVTeVJXc1nsLKJ9xTWVvdrmZk/I67Z/tOQayEBLzK2Ivp0tldAsgOUKsPe0z3SY2ErjthbWb+WuEbwlCk9HGoTOgfUxgR49B+yAA+uCsLcNtwjY7BRNu+n+HwfCqs8amFxRA="
     - COMMIT=${TRAVIS_COMMIT::8}
 
-after_success:
+script:
   - make image
   - IMGTAG=latest make image-tag
   - IMGTAG={$TRAVIS_BUILD_ID} make image-tag
