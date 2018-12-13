@@ -4,7 +4,3 @@ github.com/peterbourgon/ff v1.0.3 h1:ZeyQiDuR1nozWrii3mSFgQHF9n6sGwvFQTU5bghEhx8
 github.com/peterbourgon/ff v1.0.3/go.mod h1:P2CDTJbjip+iAWS2jnkp6uKBX2Bcvc/K4p5j47CTRv0=
 github.com/pkg/errors v0.8.0 h1:WdK/asTD0HN+q6hsWO3/vpuAkAr+tw6aNJNDFFf0+qw=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
-golang.org/x/sys v0.0.0-20181211161752-7da8ea5c8182 h1:3jwI9dC+BuoXWS+QtR/HhfGTGTuB6ZzL6II6S1IuVvo=
-golang.org/x/sys v0.0.0-20181211161752-7da8ea5c8182/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
-golang.org/x/tools v0.0.0-20181211221832-59cd96f77e7e h1:2YuxeA0qR15eck38vR9xdGoKYj1+Yk8VGPU0YnjAZuU=
-golang.org/x/tools v0.0.0-20181211221832-59cd96f77e7e/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
