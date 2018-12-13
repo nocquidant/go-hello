@@ -8,7 +8,7 @@ VERSION ?= $(shell cat VERSION)
 # Set image for Docker
 IMGREPO ?= nocquidant/go-hello
 # Set target tag for Docker image
-IMGTAG ?= $(GITCOMMIT)
+IMGTAG ?= latest
 # Set Docker username for pushing image to registry
 DOCKER_USER ?= unknown
 # Set Docker password for pushing image to registry
@@ -64,13 +64,13 @@ docker-login: docker-check-env
 	docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
 
 image: docker-check-env ## Builds Docker image
-	docker build -f Dockerfile -t $(IMGREPO):$(IMGTAG) .
+	docker build -f Dockerfile -t $(IMGREPO):$(GITCOMMIT) .
 
 tag-image: docker-check-env ## Tags image with target tag $(IMGTAG) which should be the build #id
 	docker tag $(IMGREPO):$(GITCOMMIT) $(IMGREPO):$(IMGTAG)
 
 push-image: docker-login ## Pushes image to Docker Hub
-	docker push $(IMGREPO):$(IMGTAG)
+	docker push $(IMGREPO)
 
 # -----------------------------------------------------------------------------  
 clean:
