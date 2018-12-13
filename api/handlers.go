@@ -50,7 +50,7 @@ func HandlerHealth(w http.ResponseWriter, r *http.Request) {
 func HandlerHello(w http.ResponseWriter, r *http.Request) {
 	h, _ := os.Hostname()
 	m := make(map[string]interface{})
-	m["msg"] = fmt.Sprintf("My name is '%s', I'm served from '%s'", env.NAME, h)
+	m["msg"] = fmt.Sprintf("Hello, my name is '%s' and I'm served from '%s'", env.NAME, h)
 
 	fmt.Fprintf(w, mapAsJson(m))
 }
