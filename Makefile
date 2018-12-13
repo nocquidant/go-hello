@@ -67,7 +67,7 @@ image: docker-check-env ## Builds Docker image
 	docker build -f Dockerfile -t $(IMGREPO):git-$(GITCOMMIT) .
 
 tag-image: docker-check-env ## Tags image with target tag $(IMGTAG) which should be the build #id
-	docker tag $(IMGREPO):$(GITCOMMIT) $(IMGREPO):$(IMGTAG)
+	docker tag $(IMGREPO):git-$(GITCOMMIT) $(IMGREPO):$(IMGTAG)
 
 push-image: docker-login ## Pushes image to Docker Hub
 	docker push $(IMGREPO)
