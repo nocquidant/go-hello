@@ -64,7 +64,7 @@ docker-login: docker-check-env
 	docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
 
 image: docker-check-env ## Builds Docker image
-	docker build -f Dockerfile -t $(IMGREPO):$(GITCOMMIT) .
+	docker build -f Dockerfile -t $(IMGREPO):git-$(GITCOMMIT) .
 
 tag-image: docker-check-env ## Tags image with target tag $(IMGTAG) which should be the build #id
 	docker tag $(IMGREPO):$(GITCOMMIT) $(IMGREPO):$(IMGTAG)
