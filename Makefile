@@ -31,9 +31,6 @@ DIST_DIR = $(PREFIX)/dist
 PACKAGE = $(PREFIX)
 
 # Util stuff ------------------------------------------------------------------
-
-.PHONY: run build package image push-image test clean help 
-
 print-%: ; @echo $*=$($*)
 
 # -----------------------------------------------------------------------------
@@ -43,6 +40,14 @@ run: ## Runs go-hello
 # -----------------------------------------------------------------------------
 build: ## Builds go-hello
 	GO111MODULE=on go build -o $(DIST_DIR)/go-hello $(PACKAGE)
+
+# -----------------------------------------------------------------------------
+test: ## Runs tests
+	GO111MODULE=on go test -v -cover $(shell go list ./... | grep -v /vendor/ | grep -v mock)	
+
+# -----------------------------------------------------------------------------
+benchmark: ## Runs benchmarks
+	GO111MODULE=on go test -bench $(shell go list ./... | grep -v /vendor/ | grep -v mock) 
 
 # -----------------------------------------------------------------------------
 define buildpackage
@@ -79,3 +84,6 @@ clean:
 # -----------------------------------------------------------------------------
 help: ## Displays this help 
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+
+
+.PHONY: run build test benchmark package docker-login image tag-image push-image clean help 
