@@ -10,6 +10,6 @@ env:
 script:
   - make image
   - IMGTAG=travis-${TRAVIS_BUILD_ID} make tag-image
-  - IMGTAG=latest make tag-image
+  - IMGTAG=yay make tag-image
   - make docker-login 
   - make push-image
