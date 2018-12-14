@@ -11,7 +11,6 @@ A tiny hello world HTTP application written in Go that is shipped as a docker co
 | GET  | /request  | Call a remote service (get) using HELLO_REMOTE env variable |
 | GET  | /info  | Display some technical informations |
 
-
 # Docker
 
 Docker images are published to: https://hub.docker.com/r/nocquidant/go-hello/
