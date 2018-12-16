@@ -3,9 +3,12 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/google/logger"
@@ -44,31 +47,37 @@ func mapAsJson(m map[string]interface{}) string {
 }
 
 func HandlerHealth(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, kvAsJson("health", "UP"))
+	io.WriteString(w, kvAsJson("health", "UP"))
 }
 
 func HandlerHello(w http.ResponseWriter, r *http.Request) {
 	h, _ := os.Hostname()
 	m := make(map[string]interface{})
-	m["msg"] = fmt.Sprintf("Hello, my name is '%s' and I'm served from '%s'", env.NAME, h)
+	m["msg"] = fmt.Sprintf("Hello, my name is '%s' (id#%s) and I'm served from '%s'", env.NAME, env.INSTANCE_ID[:8], h)
 
-	fmt.Fprintf(w, mapAsJson(m))
-}
-
-func HandlerInfo(w http.ResponseWriter, r *http.Request) {
-	m := make(map[string]interface{})
-	m["version"] = env.VERSION
-	m["build"] = env.GITCOMMIT
-	m["environment"] = map[string]interface{}{
-		"name":      env.NAME,
-		"port":      env.PORT,
-		"remoteUrl": env.REMOTE_URL,
+	// Hidden feature: response with delay -> /hello?delay=valueInMillis
+	delay := r.URL.Query().Get("delay")
+	if len(delay) > 0 {
+		delayNum, _ := strconv.Atoi(delay)
+		time.Sleep(time.Duration(delayNum) * time.Millisecond)
 	}
 
-	fmt.Fprintf(w, mapAsJson(m))
+	// Hidden feature: response with error -> /hello?error=valueInPercent
+	error := r.URL.Query().Get("error")
+	if len(error) > 0 {
+		errorNum, _ := strconv.Atoi(error)
+		rand.Seed(time.Now().UnixNano())
+		n := rand.Intn(100)
+		if n <= errorNum {
+			w.WriteHeader(http.StatusInternalServerError)
+			io.WriteString(w, kvAsJson("error", "Something, somewhere, went wrong!"))
+			return
+		}
+	}
+	io.WriteString(w, mapAsJson(m))
 }
 
-func HandlerRequest(w http.ResponseWriter, r *http.Request) {
+func HandlerRemote(w http.ResponseWriter, r *http.Request) {
 	// Build the request
 	req, err := http.NewRequest("GET", "http://"+env.REMOTE_URL, nil)
 	if err != nil {
@@ -108,8 +117,8 @@ func HandlerRequest(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Error while unmarshalling response from remote", http.StatusInternalServerError)
 			logger.Errorf("Error while unmarshalling response from remote: %s", err)
 		}
-		fmt.Fprintf(w, kmAsJson("fromRemote", x))
+		io.WriteString(w, kmAsJson("fromRemote", x))
 	} else {
-		fmt.Fprintf(w, "Error while calling the back: %d", resp.StatusCode)
+		io.WriteString(w, fmt.Sprintf("Error while calling the back: %d", resp.StatusCode))
 	}
 }

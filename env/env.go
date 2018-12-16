@@ -6,6 +6,9 @@ var VERSION string
 // GITCOMMIT indicates which git hash the binary was built off of
 var GITCOMMIT string
 
+// The instance ID
+var INSTANCE_ID string
+
 // The name of the application
 var NAME string
 
