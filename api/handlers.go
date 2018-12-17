@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/google/logger"
@@ -54,26 +52,6 @@ func HandlerHello(w http.ResponseWriter, r *http.Request) {
 	h, _ := os.Hostname()
 	m := make(map[string]interface{})
 	m["msg"] = fmt.Sprintf("Hello, my name is '%s' (id#%s) and I'm served from '%s'", env.NAME, env.INSTANCE_ID[:8], h)
-
-	// Hidden feature: response with delay -> /hello?delay=valueInMillis
-	delay := r.URL.Query().Get("delay")
-	if len(delay) > 0 {
-		delayNum, _ := strconv.Atoi(delay)
-		time.Sleep(time.Duration(delayNum) * time.Millisecond)
-	}
-
-	// Hidden feature: response with error -> /hello?error=valueInPercent
-	error := r.URL.Query().Get("error")
-	if len(error) > 0 {
-		errorNum, _ := strconv.Atoi(error)
-		rand.Seed(time.Now().UnixNano())
-		n := rand.Intn(100)
-		if n <= errorNum {
-			w.WriteHeader(http.StatusInternalServerError)
-			io.WriteString(w, kvAsJson("error", "Something, somewhere, went wrong!"))
-			return
-		}
-	}
 	io.WriteString(w, mapAsJson(m))
 }
 
