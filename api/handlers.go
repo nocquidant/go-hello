@@ -13,42 +13,20 @@ import (
 	"github.com/nocquidant/go-hello/env"
 )
 
-func kvAsJson(key string, val string) string {
-	m := make(map[string]string)
-	m[key] = val
-	data, err := json.Marshal(m)
-	if err != nil {
-		logger.Errorf("Error while serializing to json: %s", err)
-		return ""
-	}
-	return string(data)
-}
-
-func kmAsJson(key string, v map[string]interface{}) string {
-	m := make(map[string]interface{})
-	m[key] = v
-	data, err := json.Marshal(m)
-	if err != nil {
-		logger.Errorf("Error while serializing to json: %s", err)
-		return ""
-	}
-	return string(data)
-}
-
-func mapAsJson(m map[string]interface{}) string {
-	data, err := json.Marshal(m)
-	if err != nil {
-		logger.Errorf("Error while serializing to json: %s", err)
-		return ""
-	}
-	return string(data)
+func writeError(w http.ResponseWriter, statusCode int, msg string) {
+	w.WriteHeader(statusCode)
+	io.WriteString(w, kvAsJson("error", msg))
 }
 
 func HandlerHealth(w http.ResponseWriter, r *http.Request) {
+	logger.Infof("%s request to %s\n", r.Method, r.RequestURI)
+
 	io.WriteString(w, kvAsJson("health", "UP"))
 }
 
 func HandlerHello(w http.ResponseWriter, r *http.Request) {
+	logger.Infof("%s request to %s\n", r.Method, r.RequestURI)
+
 	h, _ := os.Hostname()
 	m := make(map[string]interface{})
 	m["msg"] = fmt.Sprintf("Hello, my name is '%s' (id#%s) and I'm served from '%s'", env.NAME, env.INSTANCE_ID[:8], h)
@@ -56,10 +34,12 @@ func HandlerHello(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandlerRemote(w http.ResponseWriter, r *http.Request) {
+	logger.Infof("%s request to %s\n", r.Method, r.RequestURI)
+
 	// Build the request
 	req, err := http.NewRequest("GET", "http://"+env.REMOTE_URL, nil)
 	if err != nil {
-		http.Error(w, "Error while building request", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "Error while building request")
 		logger.Errorf("Error while building request: %s", err)
 		return
 	}
@@ -73,7 +53,7 @@ func HandlerRemote(w http.ResponseWriter, r *http.Request) {
 	// Send the request via a client
 	resp, err := client.Do(req)
 	if err != nil {
-		http.Error(w, "Error while requesting backend", http.StatusServiceUnavailable)
+		writeError(w, http.StatusServiceUnavailable, "Error while requesting backend")
 		logger.Errorf("Error while requesting backend: %s", err)
 		return
 	}
@@ -85,14 +65,14 @@ func HandlerRemote(w http.ResponseWriter, r *http.Request) {
 	if resp.StatusCode == http.StatusOK {
 		bodyBytes, err2 := ioutil.ReadAll(resp.Body)
 		if err2 != nil {
-			http.Error(w, "Error while getting body", http.StatusInternalServerError)
+			writeError(w, http.StatusInternalServerError, "Error while getting body from remote")
 			logger.Errorf("Error while getting body: %s", err)
 			return
 		}
 		var x map[string]interface{}
 		err := json.Unmarshal(bodyBytes, &x)
 		if err != nil {
-			http.Error(w, "Error while unmarshalling response from remote", http.StatusInternalServerError)
+			writeError(w, http.StatusInternalServerError, "Error while unmarshalling response from remote")
 			logger.Errorf("Error while unmarshalling response from remote: %s", err)
 		}
 		io.WriteString(w, kmAsJson("fromRemote", x))
