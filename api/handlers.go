@@ -19,7 +19,7 @@ func writeError(w http.ResponseWriter, statusCode int, msg string) {
 }
 
 func HandlerHealth(w http.ResponseWriter, r *http.Request) {
-	logger.Infof("%s request to %s\n", r.Method, r.RequestURI)
+	// do not fill the logs here
 
 	io.WriteString(w, kvAsJson("health", "UP"))
 }
