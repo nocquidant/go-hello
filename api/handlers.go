@@ -29,7 +29,7 @@ func HandlerHello(w http.ResponseWriter, r *http.Request) {
 
 	h, _ := os.Hostname()
 	m := make(map[string]interface{})
-	m["msg"] = fmt.Sprintf("Hello, my name is '%s' (id#%s) and I'm served from '%s'", env.NAME, env.INSTANCE_ID[:8], h)
+	m["msg"] = fmt.Sprintf("Hello, my name is '%s', I'm served from '%s'", env.NAME, h)
 	io.WriteString(w, mapAsJson(m))
 }
 

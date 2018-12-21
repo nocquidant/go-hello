@@ -11,7 +11,6 @@ import (
 	"github.com/nocquidant/go-hello/api"
 	"github.com/nocquidant/go-hello/env"
 	"github.com/peterbourgon/ff"
-	"github.com/satori/go.uuid"
 )
 
 func main() {
@@ -31,16 +30,12 @@ func main() {
 	env.PORT = *port
 	env.REMOTE_URL = *url
 
-	// Set a UUID for the running instance
-	env.INSTANCE_ID = uuid.NewV4().String()
-
 	logger.Info("Environment used...")
 	logger.Infof(" - env.version: %s\n", env.VERSION)
 	logger.Infof(" - env.build: %s\n", env.GITCOMMIT)
 	logger.Infof(" - env.name: %s\n", env.NAME)
 	logger.Infof(" - env.port: %d\n", env.PORT)
 	logger.Infof(" - env.remoteUrl: %s\n", env.REMOTE_URL)
-	logger.Infof(" - env.instanceId: %s\n", env.INSTANCE_ID)
 
 	logger.Infof("HTTP service: %s, is running using port: %d\n", env.NAME, env.PORT)
 	logger.Info("Available GET endpoints are: '/health', '/hello' and '/remote'")
