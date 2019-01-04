@@ -14,23 +14,47 @@ import (
 )
 
 func writeError(w http.ResponseWriter, statusCode int, msg string) {
+	data, err := json.Marshal(ErrorResponse{msg})
+	if err != nil {
+		w.WriteHeader(statusCode)
+		io.WriteString(w, fmt.Sprintf("Error while building response: %s", err))
+		logger.Errorf("Error while building response: %s", err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	io.WriteString(w, kvAsJson("error", msg))
+	io.WriteString(w, string(data))
+}
+
+func writeJson(w http.ResponseWriter, json []byte) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	io.WriteString(w, string(json))
 }
 
 func HandlerHealth(w http.ResponseWriter, r *http.Request) {
-	// do not fill the logs here
+	// This fuction is frequently used by K8S
+	// -> do not fill the logs, do not record metrics neither
 
-	io.WriteString(w, kvAsJson("health", "UP"))
+	data, err := json.Marshal(HealthResponse{"UP"})
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Error while marshalling HealthResponse")
+	} else {
+		writeJson(w, data)
+	}
 }
 
 func HandlerHello(w http.ResponseWriter, r *http.Request) {
 	logger.Infof("%s request to %s\n", r.Method, r.RequestURI)
 
 	h, _ := os.Hostname()
-	m := make(map[string]interface{})
-	m["msg"] = fmt.Sprintf("Hello, my name is '%s', I'm served from '%s'", env.NAME, h)
-	io.WriteString(w, mapAsJson(m))
+	hello := fmt.Sprintf("Hello, my name is '%s', I'm served from '%s'", env.NAME, h)
+	data, err := json.Marshal(MsgResponse{hello})
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Error while marshalling MsgResponse")
+	} else {
+		writeJson(w, data)
+	}
 }
 
 func HandlerRemote(w http.ResponseWriter, r *http.Request) {
@@ -61,22 +85,39 @@ func HandlerRemote(w http.ResponseWriter, r *http.Request) {
 	// Callers should close resp.Body
 	defer resp.Body.Close()
 
-	// Get body as string
 	if resp.StatusCode == http.StatusOK {
+		// Get body as string
 		bodyBytes, err2 := ioutil.ReadAll(resp.Body)
 		if err2 != nil {
 			writeError(w, http.StatusInternalServerError, "Error while getting body from remote")
 			logger.Errorf("Error while getting body: %s", err)
 			return
 		}
-		var x map[string]interface{}
-		err := json.Unmarshal(bodyBytes, &x)
+
+		// Get body as struct MsgResponse
+		var respRemote MsgResponse
+		err := json.Unmarshal(bodyBytes, &respRemote)
 		if err != nil {
 			writeError(w, http.StatusInternalServerError, "Error while unmarshalling response from remote")
 			logger.Errorf("Error while unmarshalling response from remote: %s", err)
 		}
-		io.WriteString(w, kmAsJson("fromRemote", x))
+
+		// Create struct for response
+		h, _ := os.Hostname()
+		respCurrent := MsgRemoteResponse{
+			Msg:        fmt.Sprintf("Hello, my name is '%s', I'm served from '%s'", env.NAME, h),
+			FromRemote: respRemote,
+		}
+
+		// Write response as Json
+		data, err := json.Marshal(respCurrent)
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "Error while marshalling MsgRemoteResponse")
+		} else {
+			writeJson(w, data)
+		}
 	} else {
-		io.WriteString(w, fmt.Sprintf("Error while calling the back: %d", resp.StatusCode))
+		// Write error
+		writeError(w, resp.StatusCode, "Error while calling the backend app")
 	}
 }
