@@ -14,7 +14,7 @@ import (
 )
 
 func writeError(w http.ResponseWriter, statusCode int, msg string) {
-	data, err := json.Marshal(ErrorResponse{msg})
+	data, err := json.Marshal(ErrorResponse{Code: statusCode, Error: msg})
 	if err != nil {
 		w.WriteHeader(statusCode)
 		io.WriteString(w, fmt.Sprintf("Error while building response: %s", err))
