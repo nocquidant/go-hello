@@ -41,7 +41,6 @@ func main() {
 	logger.Info("Available GET endpoints are: '/health', '/hello' and '/remote'")
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", api.HandlerHealth)
 	mux.HandleFunc("/health", api.HandlerHealth)
 	mux.HandleFunc("/hello", api.HandlerHello)
 	mux.HandleFunc("/remote", api.HandlerRemote)
