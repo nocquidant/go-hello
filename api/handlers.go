@@ -9,8 +9,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/google/logger"
 	"github.com/nocquidant/go-hello/env"
+	logger "github.com/sirupsen/logrus"
 )
 
 func writeError(w http.ResponseWriter, statusCode int, msg string) {
@@ -26,12 +26,13 @@ func writeError(w http.ResponseWriter, statusCode int, msg string) {
 	io.WriteString(w, string(data))
 }
 
-func writeJson(w http.ResponseWriter, json []byte) {
+func writeJSON(w http.ResponseWriter, json []byte) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	io.WriteString(w, string(json))
 }
 
+// HandlerHealth handles the 'health/' http endpoint
 func HandlerHealth(w http.ResponseWriter, r *http.Request) {
 	// This fuction is frequently used by K8S
 	// -> do not fill the logs, do not record metrics neither
@@ -40,10 +41,11 @@ func HandlerHealth(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "Error while marshalling HealthResponse")
 	} else {
-		writeJson(w, data)
+		writeJSON(w, data)
 	}
 }
 
+// HandlerHello handles the 'hello/' http endpoint
 func HandlerHello(w http.ResponseWriter, r *http.Request) {
 	logger.Infof("%s request to %s\n", r.Method, r.RequestURI)
 
@@ -53,10 +55,11 @@ func HandlerHello(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "Error while marshalling MsgResponse")
 	} else {
-		writeJson(w, data)
+		writeJSON(w, data)
 	}
 }
 
+// HandlerRemote handles the 'remote/' http endpoint
 func HandlerRemote(w http.ResponseWriter, r *http.Request) {
 	logger.Infof("%s request to %s\n", r.Method, r.RequestURI)
 
@@ -114,7 +117,7 @@ func HandlerRemote(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			writeError(w, http.StatusInternalServerError, "Error while marshalling MsgRemoteResponse")
 		} else {
-			writeJson(w, data)
+			writeJSON(w, data)
 		}
 	} else {
 		// Write error

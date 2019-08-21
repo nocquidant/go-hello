@@ -2,20 +2,22 @@ package main
 
 import (
 	"flag"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 
-	"github.com/google/logger"
 	"github.com/nocquidant/go-hello/api"
 	"github.com/nocquidant/go-hello/env"
 	"github.com/peterbourgon/ff"
+	logger "github.com/sirupsen/logrus"
 )
 
-func main() {
-	logger.Init("hello", true, false, ioutil.Discard)
+func init() {
+	logger.SetOutput(os.Stdout)
+	logger.SetLevel(logger.InfoLevel)
+}
 
+func main() {
 	fs := flag.NewFlagSet("go-hello", flag.ExitOnError)
 	var (
 		name = fs.String("name", "hello-svc", "the name of the app (default is 'hello-svc')")
@@ -37,7 +39,7 @@ func main() {
 	logger.Infof(" - env.port: %d\n", env.PORT)
 	logger.Infof(" - env.remoteUrl: %s\n", env.REMOTE_URL)
 
-	logger.Infof("HTTP service: %s, is running using port: %d\n", env.NAME, env.PORT)
+	logger.Infof("\nHTTP service: %s, is running using port: %d\n", env.NAME, env.PORT)
 	logger.Info("Available GET endpoints are: '/health', '/hello' and '/remote'")
 
 	mux := http.NewServeMux()
