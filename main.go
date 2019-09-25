@@ -1,54 +1,8 @@
 package main
 
-import (
-	"flag"
-	"net/http"
-	"os"
-	"strconv"
+import "github.com/nocquidant/go-hello/cmd"
 
-	"github.com/nocquidant/go-hello/api"
-	"github.com/nocquidant/go-hello/env"
-	"github.com/peterbourgon/ff"
-	logger "github.com/sirupsen/logrus"
-)
-
-func init() {
-	logger.SetOutput(os.Stdout)
-	logger.SetLevel(logger.InfoLevel)
-}
-
+// The single entry point
 func main() {
-	fs := flag.NewFlagSet("go-hello", flag.ExitOnError)
-	var (
-		name = fs.String("name", "hello-svc", "the name of the app (default is 'hello-svc')")
-		port = fs.Int("port", 8484, "the listen port (default is '8484')")
-		url  = fs.String("remote", "localhost:8485/hello", "the url of a remote service (default is 'another-svc:8485/hello')")
-	)
-
-	// Use env variable like 'HELLO_NAME=dummy'
-	ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("HELLO"))
-
-	env.NAME = *name
-	env.PORT = *port
-	env.REMOTE_URL = *url
-
-	logger.Info("Environment used...")
-	logger.Infof(" - env.version: %s\n", env.VERSION)
-	logger.Infof(" - env.build: %s\n", env.GITCOMMIT)
-	logger.Infof(" - env.name: %s\n", env.NAME)
-	logger.Infof(" - env.port: %d\n", env.PORT)
-	logger.Infof(" - env.remoteUrl: %s\n", env.REMOTE_URL)
-
-	logger.Infof("\nHTTP service: %s, is running using port: %d\n", env.NAME, env.PORT)
-	logger.Info("Available GET endpoints are: '/health', '/hello' and '/remote'")
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/health", api.HandlerHealth)
-	mux.HandleFunc("/hello", api.HandlerHello)
-	mux.HandleFunc("/remote", api.HandlerRemote)
-
-	err := http.ListenAndServe(":"+strconv.Itoa(env.PORT), mux)
-	if err != nil {
-		logger.Fatal(err)
-	}
+	cmd.Execute()
 }

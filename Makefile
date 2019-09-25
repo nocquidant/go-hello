@@ -1,89 +1,130 @@
 .DEFAULT_GOAL := help
 
-# Settable variables ----------------------------------------------------------
-# Set output prefix (local directory if not specified)
-PREFIX ?= $(shell pwd)
-# Set version (read from file if not specified)
-VERSION ?= $(shell cat VERSION)
-# Set image for Docker
-IMGREPO ?= nocquidant/go-hello
-# Set target tag for Docker image
-IMGTAG ?= latest
-# Set Docker username for pushing image to registry
-DOCKER_USER ?= unknown
-# Set Docker password for pushing image to registry
-DOCKER_PASS ?= unknown
+files := $(shell find . -path ./vendor -prune -path ./pb -prune -o -name '*.go' -print)
+pkgs := $(shell go list ./... | grep -v /vendor/ )
 
-# Compile time flags ----------------------------------------------------------
-GITCOMMIT := $(shell git rev-parse --short HEAD)
-GITUNTRACKEDCHANGES := $(shell git status --porcelain --untracked-files=no)
-ifneq ($(GITUNTRACKEDCHANGES),)
-	GITCOMMIT := $(GITCOMMIT)-dirty
+git_rev := $(shell git rev-parse --short HEAD)
+git_tag := $(shell git tag --points-at=$(git_rev))
+release_date := $(shell date +%d-%m-%Y)
+latest_git_tag := $(shell git for-each-ref --format="%(tag)" --sort=-taggerdate refs/tags | head -1)
+ifneq ($(strip $(latest_git_tag)),)
+	latest_git_rev := $(shell git rev-list --abbrev-commit -n 1 $(latest_git_tag))
 endif
-CTIMEVAR=-X $(MOD)/env.GITCOMMIT=$(GITCOMMIT) -X $(MOD)/env.VERSION=$(VERSION)
-GO_LDFLAGS=-ldflags "-w $(CTIMEVAR)"
-GO_LDFLAGS_STATIC=-ldflags "-w $(CTIMEVAR) -extldflags -static"
+version := $(if $(git_tag),$(git_tag),dev@$(git_rev))
+build_time := $(shell date -u)
+ldflags := -X "github.com/nocquidant/go-hello/cmd.version=$(version)" -X "github.com/nocquidant/go-hello/cmd.buildTime=$(build_time)"
 
-# Other variables -------------------------------------------------------------
-# Module name
-MOD := github.com/nocquidant/go-hello
-DIST_DIR = $(PREFIX)/dist
-PACKAGE = $(PREFIX)
+cwd := $(shell pwd)
+build_dir := $(cwd)/build/bin
+dist_dir := $(cwd)/dist
 
-# Util stuff ------------------------------------------------------------------
+# Define cross compiling targets
+os := $(shell uname)
+ifeq ("$(os)", "Linux")
+	target_os = linux
+	cross_os = darwin
+else ifeq ("$(os)", "Darwin")
+	target_os = darwin
+	cross_os = linux
+endif
+
+# Debug purpose
 print-%: ; @echo $*=$($*)
 
-# -----------------------------------------------------------------------------
-run: ## Runs go-hello
-	GO111MODULE=on go run $(PACKAGE)
+# Define cross compiling targets
+os := $(shell uname)
 
-# -----------------------------------------------------------------------------
-build: ## Builds go-hello
-	GO111MODULE=on go build -o $(DIST_DIR)/go-hello $(PACKAGE)
+.PHONY: check-os
+check-os:
+ifndef target_os
+	$(error Unsupported platform: ${os})
+endif
 
-# -----------------------------------------------------------------------------
-test: ## Runs tests
-	GO111MODULE=on go test -v -cover $(shell go list ./... | grep -v /vendor/ | grep -v mock)	
+.PHONY: format
+format:
+	@echo "===== format"
+	@goimports -w $(files)
+	@sync
 
-# -----------------------------------------------------------------------------
-benchmark: ## Runs benchmarks
-	GO111MODULE=on go test -bench $(shell go list ./... | grep -v /vendor/ | grep -v mock) 
+unformatted = $(shell goimports -l $(files))
 
-# -----------------------------------------------------------------------------
-define buildpackage
-GOOS=$(1) GOARCH=$(2) CGO_ENABLED=0 GO111MODULE=on go build -o $(DIST_DIR)/go-hello-$(1)-$(2) -a $(GO_LDFLAGS_STATIC) $(PACKAGE)
-endef
+.PHONY: check-format
+check-format:
+	@echo "===== check formatting"
+ifneq "$(unformatted)" ""
+	@echo "needs formatting:"
+	@echo "$(unformatted)" | tr ' ' '\n'
+	$(error run 'make format')
+endif
 
-package-darwin: ${PACKAGE}/*.go ; $(call buildpackage,darwin,amd64)
+.PHONY: vet
+vet:
+	@echo "===== vet"
+	@go vet $(pkgs)
 
-package-windows: ${PACKAGE}/*.go ; $(call buildpackage,windows,amd64)
+.PHONY: lint
+lint:
+	@echo "===== lint"
+	@for pkg in $(pkgs); do \
+		golint -set_exit_status $$pkg || exit 1 ; \
+	done;
 
-package-linux: ${PACKAGE}/*.go ; $(call buildpackage,linux,amd64)
+.PHONY: check
+check: check-os check-format vet lint
 
-package: package-linux package-windows package-darwin ## Cross compiles go-hello
+.PHONY: setup
+setup:
+	@echo "===== setup"
+	go get -v golang.org/x/lint/golint
+	go get golang.org/x/tools/cmd/goimports
+	@which golint > /dev/null || (echo 'ERROR: unable to find golint'; exit 1)
+	@which goimports > /dev/null || (echo 'ERROR: unable to find goimports'; exit 1)
 
-# -----------------------------------------------------------------------------  
-docker-check-env: Dockerfile ; @which docker > /dev/null
+.PHONY: build
+build: setup check ## Build artifact in 'build' directory for the current platform
+	@echo "===== build"
+	GOOS=${target_os} GOARCH=amd64 go build -ldflags '-s $(ldflags)' -o ${build_dir}/go-hello -v
 
-docker-login: docker-check-env
-	docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-
-image: docker-check-env ## Builds Docker image
-	docker build -f Dockerfile -t $(IMGREPO):git-$(GITCOMMIT) .
-
-tag-image: docker-check-env ## Tags image with target tag $(IMGTAG) which should be the build #id
-	docker tag $(IMGREPO):git-$(GITCOMMIT) $(IMGREPO):$(IMGTAG)
-
-push-image: docker-login ## Pushes image to Docker Hub
-	docker push $(IMGREPO)
-
-# -----------------------------------------------------------------------------  
+.PHONY: clean
 clean:
-	rm -rf $(DIST_DIR)
+	@echo "===== clean"
+	rm -rf build
 
-# -----------------------------------------------------------------------------
-help: ## Displays this help 
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+.PHONY: test
+test: build ## Run all tests from source files
+	@echo "===== run tests"
+	go test -race $(pkgs)
 
+image := nocquidant/go-hello
+DOCKER_USER  ?= tobeset-here
+DOCKER_PASS ?= tobeset-cicd
 
-.PHONY: run build test benchmark package docker-login image tag-image push-image clean help 
+.PHONY: docker-check
+docker-check: 
+	@echo "===== docker check env."
+	@which docker > /dev/null
+
+.PHONY: docker-image
+docker-image: docker-check ## Build Docker image
+	@echo "===== build docker image"
+	docker build -t $(image):latest .
+
+.PHONY: docker-release
+docker-release: docker-image  ## Push Docker image
+	@echo "===== tag and push docker image"
+ifeq ($(strip $(git_tag)),)
+	@echo "no tag on $(git_rev), skipping docker release"
+else
+	@echo "releasing $(image):$(git_tag)"
+	@docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
+	docker tag $(image):latest $(image):$(git_tag)
+	docker push $(image):$(git_tag)
+	@if [ "$(git_rev)" = "$(latest_git_rev)" ]; then \
+		echo "updating latest image"; \
+		echo docker push $(image):latest ; \
+	fi;
+endif
+
+.PHONY: help
+help: ## Displays this help
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)

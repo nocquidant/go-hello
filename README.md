@@ -8,7 +8,7 @@ A tiny hello world HTTP application written in Go that is shipped as a docker co
 | ---- | ------ | ----------- |
 | GET  | /health | Display a 'UP' message |
 | GET  | /hello | Display a 'hello' message |
-| GET  | /remote  | Call a remote service (http get) using HELLO_REMOTE env variable |
+| GET  | /gurl  | Call a remote URL (http get) using HELLO_REMOTE env variable |
 
 # Docker
 
