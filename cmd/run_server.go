@@ -20,9 +20,9 @@ func Execute() {
 
 	ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("HELLO"))
 
-	log.Printf("Flag 'name' value is: %s\n", *name)
-	log.Printf("Flag 'port' value is: %d\n", *port)
-	log.Printf("Flag 'url' value is: %s\n", *url)
+	log.Printf("Flag var 'name' is: %s\n", *name)
+	log.Printf("Flag var 'port' is: %d\n", *port)
+	log.Printf("Flag var 'url' is: %s\n", *url)
 
 	params := server.NewParameters(*name, *port, *url)
 	server.ListenAndServe(params)

@@ -12,7 +12,7 @@ ifneq ($(strip $(latest_git_tag)),)
 endif
 version := $(if $(git_tag),$(git_tag),dev@$(git_rev))
 build_time := $(shell date -u)
-ldflags := -X "github.com/nocquidant/go-hello/cmd.version=$(version)" -X "github.com/nocquidant/go-hello/cmd.buildTime=$(build_time)"
+ldflags := -X "main.Version=$(version)" -X "main.BuildTime=$(build_time)"
 
 cwd := $(shell pwd)
 build_dir := $(cwd)/build/bin
