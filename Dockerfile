@@ -1,15 +1,3 @@
-# Multi stage build
-
-# Stage build -----------------------------------------------------------------
-FROM golang:1.13 AS build 
-
-ADD . /app
-WORKDIR /app
-
-RUN ./scripts/installMage.sh
-RUN mage build
-
-# Stage package ---------------------------------------------------------------
 FROM alpine:3.9 
 
 # For go binaries to work inside an alpine container
@@ -19,6 +7,6 @@ EXPOSE 8484
 CMD ["go-hello"]
 HEALTHCHECK --interval=10s CMD wget -qO- localhost:8484/hello 
 
-COPY --from=build /app/build/go-hello /usr/local/bin/go-hello
+COPY build/go-hello /usr/local/bin/go-hello
 
 RUN chmod +x /usr/local/bin/go-hello
