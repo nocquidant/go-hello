@@ -6,7 +6,8 @@ FROM golang:1.13 AS build
 ADD . /app
 WORKDIR /app
 
-RUN make build
+RUN ./scripts/installMage.sh
+RUN mage build
 
 # Stage package ---------------------------------------------------------------
 FROM alpine:3.9 
@@ -18,6 +19,6 @@ EXPOSE 8484
 CMD ["go-hello"]
 HEALTHCHECK --interval=10s CMD wget -qO- localhost:8484/hello 
 
-COPY --from=build /app/build/bin/go-hello /usr/local/bin/go-hello
+COPY --from=build /app/build/go-hello /usr/local/bin/go-hello
 
 RUN chmod +x /usr/local/bin/go-hello
