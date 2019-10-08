@@ -3,10 +3,12 @@ if [ ! -f build/info.json ]; then echo "ERROR Expected file: 'build/info.json'";
 dockerRegistry=$(cat build/info.json | jq '.docker.registry' | xargs)
 dockerImage=$(cat build/info.json | jq '.docker.image' | xargs)
 dockerUsr=$(cat build/info.json | jq '.docker.usr' | xargs)
+gitRev=$(cat build/info.json | jq '.git.rev' | xargs)
 gitTagAtRev=$(cat build/info.json | jq '.git.tagAtRev' | xargs)
 gitRevAtLatestTag=$(cat build/info.json | jq '.git.revAtLatestTag' | xargs)
 
 if [ -z $dockerImage ]; then echo "ERROR Expected: 'docker.image'"; exit 1; fi
+if [ -z $gitRev ]; then echo "ERROR Expected: 'git.rev'"; exit 1; fi
 if [ -z $gitTagAtRev ]; then echo "ERROR Expected: 'git.tagAtRev'"; exit 1; fi
 
 if [ ! -z $DOCKER_USER ]; then dockerUsr=$DOCKER_USER; fi
@@ -24,7 +26,7 @@ if [ $? -ne 0 ]; then exit 1; fi
 docker push "$dockerImage:$gitTagAtRev"
 if [ $? -ne 0 ]; then exit 1; fi
 
-if [ "$gitTagAtRev" == "$gitRevAtLatestTag" ]; then 
+if [ "$gitRev" == "$gitRevAtLatestTag" ]; then 
   docker push "$dockerImage:latest"
   if [ $? -ne 0 ]; then exit 1; fi
 fi
