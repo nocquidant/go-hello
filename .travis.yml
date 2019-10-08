@@ -10,9 +10,9 @@ env:
 jobs:
   include:
     - stage: build
-      script: make docker-image
+      script: mage dockerBuild
       if: tag IS blank
     - stage: deploy
-      script: make docker-release
+      script: mage dockerBuild dockerPush
       if: tag IS present
 
