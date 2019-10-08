@@ -25,6 +25,7 @@ jobs:
         - ./scripts/installMage.sh
         - mage build
         - mage printInfo > build/info.json  
+        - cat build/info.json  
     - stage: deploy
       workspaces:
         use: ws
