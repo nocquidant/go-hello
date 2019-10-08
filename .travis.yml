@@ -10,9 +10,20 @@ env:
 jobs:
   include:
     - stage: build
-      script: mage dockerBuild
-      if: tag IS blank
+      workspaces:
+        create:
+          name: ws
+          paths:
+            - build    
+      script: 
+        - ./scripts/installMage.sh
+        - mage build
+        - mage printInfo > build/info.json  
     - stage: deploy
-      script: mage dockerBuild dockerPush
+      workspaces:
+        use: ws
+      script: 
+        - ./scripts/dockerBuild.sh
+        - ./scripts/dockerPush.sh
       if: tag IS present
 
