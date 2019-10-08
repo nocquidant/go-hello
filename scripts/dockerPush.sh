@@ -6,7 +6,6 @@ dockerUsr=$(cat build/info.json | jq '.docker.usr' | xargs)
 gitTagAtRev=$(cat build/info.json | jq '.git.tagAtRev' | xargs)
 gitRevAtLatestTag=$(cat build/info.json | jq '.git.revAtLatestTag' | xargs)
 
-if [ -z $dockerRegistry ]; then echo "ERROR Expected: 'docker.registry'"; exit 1; fi
 if [ -z $dockerImage ]; then echo "ERROR Expected: 'docker.image'"; exit 1; fi
 if [ -z $gitTagAtRev ]; then echo "ERROR Expected: 'git.tagAtRev'"; exit 1; fi
 
