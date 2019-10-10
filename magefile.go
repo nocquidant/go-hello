@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/nocquidant/mageproj/mgp"
+	"github.com/voyages-sncf-technologies/mageproj/mgp"
 )
 
 const (

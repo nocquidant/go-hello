@@ -16,14 +16,23 @@ func Execute() {
 		name = fs.String("name", "hello-svc", "name of the service")
 		port = fs.Int("port", 8484, "http port to listent to")
 		url  = fs.String("url", "localhost:8485/hello", "remote url to get")
+		msg  = fs.String("msg", "", "a custom message to display")
+		_    = fs.String("config", "", "config file (optional)")
 	)
 
-	ff.Parse(fs, os.Args[1:], ff.WithEnvVarPrefix("HELLO"))
+	ff.Parse(fs, os.Args[1:],
+		ff.WithConfigFile("config.txt"),
+		ff.WithConfigFileParser(ff.PlainParser),
+		ff.WithEnvVarPrefix("HELLO"))
 
 	log.Printf("Flag var 'name' is: %s", *name)
 	log.Printf("Flag var 'port' is: %d", *port)
 	log.Printf("Flag var 'url' is: %s", *url)
+	log.Printf("Flag var 'msg' is: %s", *msg)
 
 	params := server.NewParameters(*name, *port, *url)
+	if *msg != "" {
+		params.WithMessage(*msg)
+	}
 	server.ListenAndServe(params)
 }

@@ -17,11 +17,19 @@ type Parameters struct {
 	serviceName string
 	serverPort  int
 	remoteURL   string
+	helloMsg    string
 }
 
 // NewParameters constructs a Parameters struct
 func NewParameters(svc string, port int, url string) *Parameters {
-	return &Parameters{svc, port, url}
+	h, _ := os.Hostname()
+	msg := fmt.Sprintf("Hello! I'm service '%s' hosted by '%s'", svc, h)
+	return &Parameters{svc, port, url, msg}
+}
+
+// WithMessage sets a custom message to Parameters
+func (p *Parameters) WithMessage(msg string) {
+	p.helloMsg = msg
 }
 
 // Server is our server component as a struct (-> no global state)
