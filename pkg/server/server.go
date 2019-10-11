@@ -71,9 +71,7 @@ func (s *server) handleHello() http.HandlerFunc {
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
 
-		h, _ := os.Hostname()
-		hello := fmt.Sprintf("Hello! I'm service '%s' hosted by '%s'", s.params.serviceName, h)
-		io.WriteString(w, `{"message": "`+hello+`"}`)
+		io.WriteString(w, `{"message": "`+s.params.helloMsg+`"}`)
 	}
 }
 
