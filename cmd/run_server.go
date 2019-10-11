@@ -17,10 +17,11 @@ func Execute() {
 		port = fs.Int("port", 8484, "http port to listent to")
 		url  = fs.String("url", "localhost:8485/hello", "remote url to get")
 		msg  = fs.String("msg", "", "a custom message to display")
+		_    = fs.String("config", "", "config file (optional)")
 	)
 
 	ff.Parse(fs, os.Args[1:],
-		ff.WithConfigFile("go-hello.cfg.json"),
+		ff.WithConfigFileFlag("config"),
 		ff.WithConfigFileParser(ff.JSONParser),
 		ff.WithEnvVarPrefix("HELLO"))
 
