@@ -61,20 +61,20 @@ func Clean() error {
 	return proj.Clean()
 }
 
-// DockerBuild builds Docker image
-func DockerBuild() error {
-	return proj.DockerBuild()
+// DockerBuildImage builds Docker image
+func DockerBuildImage() error {
+	return proj.DockerBuildImage()
 }
 
-// DockerPush pushes Docker image to Artifactory
-func DockerPush() error {
+// DockerPushImage pushes Docker image to Artifactory
+func DockerPushImage() error {
 	if os.Getenv("DOCKER_USR") == "" {
 		os.Setenv("DOCKER_USR", os.Getenv("DOCKER_USER"))
 	}
 	if os.Getenv("DOCKER_PWD") == "" {
 		os.Setenv("DOCKER_PWD", os.Getenv("DOCKER_PASS"))
 	}
-	return proj.DockerPush()
+	return proj.DockerPushImage()
 }
 
 // PrintInfo prints information used internally
