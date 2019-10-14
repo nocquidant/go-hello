@@ -1,10 +1,5 @@
 sudo: required
 
-language: go
-
-go:
-- 1.13.x
-
 services:
   - docker
 
@@ -22,15 +17,12 @@ jobs:
           paths:
             - build    
       script: 
-        - ./scripts/installMage.sh
-        - mage build
-        - mage printInfo > build/info.json  
-        - cat build/info.json  
+        - ./scripts/buildWithDocker.sh
     - stage: deploy
       workspaces:
         use: ws
       script: 
-        - ./scripts/dockerBuild.sh
-        - ./scripts/dockerPush.sh
+        - ./scripts/dockerBuildImage.sh
+        - ./scripts/dockerPushImage.sh
       if: tag IS present
 

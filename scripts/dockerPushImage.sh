@@ -1,12 +1,13 @@
-if [ ! -f build/info.json ]; then echo "ERROR Expected file: 'build/info.json'"; exit 1; fi
+if [ ! -f build/build-info.json ]; then echo "ERROR Expected file: 'build/build-info.json'"; exit 1; fi
 
-dockerRegistry=$(cat build/info.json | jq '.docker.registry' | xargs)
-dockerImage=$(cat build/info.json | jq '.docker.image' | xargs)
-dockerUsr=$(cat build/info.json | jq '.docker.usr' | xargs)
-gitRev=$(cat build/info.json | jq '.git.rev' | xargs)
-gitTagAtRev=$(cat build/info.json | jq '.git.tagAtRev' | xargs)
-gitRevAtLatestTag=$(cat build/info.json | jq '.git.revAtLatestTag' | xargs)
+dockerRegistry=$(cat build/build-info.json | jq '.docker.registry' | xargs)
+dockerImage=$(cat build/build-info.json | jq '.docker.image' | xargs)
+dockerUsr=$(cat build/build-info.json | jq '.docker.usr' | xargs)
+gitRev=$(cat build/build-info.json | jq '.git.rev' | xargs)
+gitTagAtRev=$(cat build/build-info.json | jq '.git.tagAtRev' | xargs)
+gitRevAtLatestTag=$(cat build/build-info.json | jq '.git.revAtLatestTag' | xargs)
 
+if [ -z $dockerRegistry ]; then echo "ERROR Expected: 'docker.registry'"; exit 1; fi
 if [ -z $dockerImage ]; then echo "ERROR Expected: 'docker.image'"; exit 1; fi
 if [ -z $gitRev ]; then echo "ERROR Expected: 'git.rev'"; exit 1; fi
 if [ -z $gitTagAtRev ]; then echo "ERROR Expected: 'git.tagAtRev'"; exit 1; fi

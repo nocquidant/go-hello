@@ -1,0 +1,17 @@
+FROM golang:1.13
+
+ARG mversion=1.9.0
+ARG mage_url=https://github.com/magefile/mage/releases/download/v${mversion}/mage_${mversion}_Linux-64bit.tar.gz
+
+RUN curl -L -s -o mage.tar.gz ${mage_url}
+RUN tar xzf mage.tar.gz && cp mage /usr/local/bin/mage
+RUN chmod +x /usr/local/bin/mage
+RUN mage --version
+
+VOLUME /app/build
+
+ADD . /app
+WORKDIR /app
+
+ENTRYPOINT ["mage"]
+CMD ["build"]
